@@ -1,9 +1,14 @@
+using System.Text;
 using Backend.Data;
 using Backend.Entities;
 using Backend.Interfaces;
+using Backend.Repositories;
 using Backend.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using SendGrid;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +29,58 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = 
+        options.DefaultChallengeScheme = 
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddCookie(options =>
+{
+    // Security settings for cookies
+    options.Cookie.HttpOnly = true; // Prevent client-side scripts from accessing the cookie
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Ensure cookies are only sent over HTTPS
+    options.Cookie.SameSite = SameSiteMode.Lax; // Prevent cross-site request forgery (CSRF) attacks
+    options.SlidingExpiration = true;
+}).AddJwtBearer(options =>
+{
+    options.Audience = builder.Configuration["JWTSettings:Audience"];
+    options.SaveToken = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:SecretKey"]!)),
+        ValidAudience = builder.Configuration["JWTSettings:Audience"]
+    };
+
+    // Ensure that the JWT token is read from cookies
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["AuthToken"]; // Look for the cookie
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token; // Attach token to the request
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<ISendGridClient>(provider =>
+{
+    var apiKey = builder.Configuration["SendGridSettings:API_Key"];
+    return new SendGridClient(apiKey);
+});
 
 
 var app = builder.Build();
@@ -46,9 +102,12 @@ if (app.Environment.IsDevelopment())
 #region CORS Configuration
 app.UseCors(options =>
     options.WithOrigins("http://localhost:4200")
+        .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowAnyHeader());
+        .AllowCredentials());
 #endregion
+
+app.UseAuthentication();
 
 app.UseHttpsRedirection();
 

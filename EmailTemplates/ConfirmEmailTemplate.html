@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+
+        .img-container {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            background-color: #6c4ed9;
+            padding: 1.3rem;
+            text-align: center;
+        }
+
+            .header img {
+                max-width: 200px;
+                margin-bottom: 10px;
+            }
+
+            .header h1 {
+                color: #ffffff;
+                margin: 0;
+                font-size: 1.55rem;
+            }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+            .content p {
+                font-size: 1rem;
+                color: #555555;
+                line-height: 1.6;
+                margin: 0 0 20px;
+            }
+
+            .content a {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #6c4ed9;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 4px;
+                font-size: 1rem;
+                font-weight: bold;
+            }
+
+        .footer {
+            background-color: #ebebeb;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.77rem;
+            color: #9c9c9c;
+        }
+
+        /* Table for email layout */
+        table {
+            width: 100%;
+            border-spacing: 0;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <table class="email-container">
+        <tr>
+            <td class="img-container">
+                <img src="https://upload.wikimedia.org/wikipedia/en/b/bf/Msu_baroda_logo.png" width="150px" height="150px" alt="MSU Logo">
+            </td>
+        </tr>
+        <tr>
+            <td class="header">
+                <h1>Email Confirmation for Account Activation</h1>
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <p>
+                    Thank you for initiating the process of registering. You can now click
+                    the button below to confirm your email address and complete the
+                    registration process.
+                </p>
+                <a href="{{confirmationLink}}" target="_blank">Confirm Email Address</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <p>
+                    Please reach out to the admin team/Computer Center in case of any queries.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

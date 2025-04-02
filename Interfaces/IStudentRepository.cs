@@ -4,9 +4,7 @@ namespace Backend.Interfaces
 {
     public interface IStudentRepository
     {
-        Task CreateStudentAsync(Student student);
-        //Task UpdateStudentAsync(Student student);
-        Task<Student> GetStudentByIdAsync(string registrationNo);
-
+        Task<Student> GetStudentByEmailAsync(string email);
+        Task<Student?> GetStudentByRegistrationIdAsync(string id);
     }
 }

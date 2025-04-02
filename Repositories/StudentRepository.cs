@@ -14,15 +14,14 @@ namespace Backend.Repositories
             _context = context;
         }
 
-        public async Task CreateStudentAsync(Student student)
+        public async Task<Student> GetStudentByEmailAsync(string email)
         {
-            await _context.Students.AddAsync(student);
-            await _context.SaveChangesAsync();
+            return (await _context.Students.FirstOrDefaultAsync(s => s.Email == email))!;
         }
 
-        public async Task<Student> GetStudentByIdAsync(string registrationNo)
+        public async Task<Student?> GetStudentByRegistrationIdAsync(string id)
         {
-            return await _context.Students.FirstOrDefaultAsync(s => s.RegistrationId == registrationNo);
+            return await _context.Students.FirstOrDefaultAsync(s => s.RegistrationId == id);
         }
     }
 }
