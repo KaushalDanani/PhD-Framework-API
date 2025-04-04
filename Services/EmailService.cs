@@ -21,8 +21,28 @@ namespace Backend.Services
             var from = new EmailAddress("kaushal00095@gmail.com", "no-reply");
             var to = new EmailAddress(emailTo, username);
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "ConfirmEmailTemplate.html");
-            var htmlContent = File.ReadAllText(templatePath).Replace("{{confirmationLink}}", confirmLink);
+            var htmlContent = File.ReadAllText(templatePath)
+                .Replace("{{confirmationLink}}", confirmLink)
+                .Replace("{{userName}}", username);
             var subject = "PhD Framework - Confirm Your Email";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, null, htmlContent);
+            var response = await _sendGridClient.SendEmailAsync(msg);
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new Exception($"Failed to send email. Status Code: {response.StatusCode}");
+            }
+        }
+
+        public async Task SendPasswordResetEmail(string emailTo, string passwordResetLink, string username)
+        {
+            var from = new EmailAddress("kaushal00095@gmail.com", "no-reply");
+            var to = new EmailAddress(emailTo);
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "PasswordResetTemplate.html");
+            var htmlContent = File.ReadAllText(templatePath)
+                .Replace("{{resetPasswordLink}}", passwordResetLink)
+                .Replace("{{userName}}", username);
+            var subject = "PhD Framework - Reset your password";
             var msg = MailHelper.CreateSingleEmail(from, to, subject, null, htmlContent);
             var response = await _sendGridClient.SendEmailAsync(msg);
 

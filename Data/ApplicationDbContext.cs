@@ -91,6 +91,7 @@ namespace Backend.Data
         public DbSet<PhDTitle> PhDTitles { get; set; }
         public DbSet<ApplicationFile> ApplicationFiles { get; set; }
         public DbSet<ProgressReport> ProgressReports { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
 
     }
 }

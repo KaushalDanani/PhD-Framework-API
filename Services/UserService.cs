@@ -32,7 +32,7 @@ namespace Backend.Services
         public async Task<ApplicationUser?> GetUserFromTokenAsync()
         {
             var token = _httpContextAccessor.HttpContext!.Request.Cookies["AuthToken"];
-            Console.WriteLine("Token:" + token);
+            //Console.WriteLine("Token:" + token);
             if (string.IsNullOrEmpty(token))
             {
                 return null!;
@@ -42,8 +42,6 @@ namespace Backend.Services
             var jsonToken = handler.ReadJwtToken(token);
             var userId = jsonToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
-            Console.WriteLine("User ID:" + userId);
-
             if (userId == null)
             {
                 return null!;
@@ -52,7 +50,6 @@ namespace Backend.Services
             var user = await _userManager.Users
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Id == userId);
-            Console.WriteLine("User Data:" + user);
             return user!;
         }
 

@@ -78,6 +78,37 @@ namespace Backend.Controllers
             return BadRequest("Email confirmation failed!");
         }
 
+        [HttpPost("forgot-password-request")]
+        public async Task<IActionResult> ForgotPasswordRequest([FromBody] ForgotPasswordRequestDto forgotPasswordRequest)
+        {
+            if (string.IsNullOrEmpty(forgotPasswordRequest.Email))
+                return BadRequest(new {message = "Email address is required"});
+
+            var result = await _authService.ForgotPasswordAsync(forgotPasswordRequest.Email);
+
+            if (result.IsSuccess)
+                return Ok(new {message = result.Message});
+
+            return BadRequest(new {message = result.Message});
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto resetPasswordDto)
+        {
+            if (string.IsNullOrEmpty(resetPasswordDto.Token))
+                return BadRequest(new { message = "Invalid token request"});
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.ResetPasswordAsync(resetPasswordDto.Token, resetPasswordDto.Password);
+
+            if (result.IsSuccess)
+                return Ok(new { message = result.Message });
+
+            return BadRequest(new { message = result.Message });
+        }
+
         [Authorize]
         [HttpPost("sign-out")]
         public IActionResult Sign_out()

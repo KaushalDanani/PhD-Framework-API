@@ -44,7 +44,7 @@ namespace Backend.Services
 
                 var user = new ApplicationUser
                 {
-                    UserName = signupDto.step1.Email,
+                    UserName = $"{signupDto.step1.FirstName} {signupDto.step1.LastName}",
                     Email = signupDto.step1.Email,
                     PhoneNumber = signupDto.step1.Phone,
                     ApplicationRoleId = role.Id
@@ -169,6 +169,132 @@ namespace Backend.Services
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             return result;
+        }
+
+        public async Task<ServiceResponseDto> ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "User not found with the provided email address."
+                };
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Please activate your account by confirming email address through the email you received."
+                };
+            }
+
+            // Generate Unique Password Reset Token
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var expirationTime = DateTime.Now.AddHours(2);
+
+            // Store the reset token and expiration in the database
+            var existingToken = await _context.PasswordResetTokens
+                .FirstOrDefaultAsync(rt => rt.Email == email);
+
+            if (existingToken != null)
+            {
+                if (existingToken.ExpireTime > DateTime.Now)
+                {
+                    return new ServiceResponseDto
+                    {
+                        IsSuccess = false,
+                        Message = "Password reset token already sent. Please check your email."
+                    };
+                }
+                else
+                {
+                    // If a token already exists, update it
+                    existingToken.Token = resetToken;
+                    existingToken.ExpireTime = expirationTime;
+                    _context.PasswordResetTokens.Update(existingToken);
+                }
+            }
+            else
+            {
+                // If no token exists, insert a new one
+                var newToken = new PasswordResetToken
+                {
+                    Email = email,
+                    Token = resetToken,
+                    ExpireTime = expirationTime
+                };
+                await _context.PasswordResetTokens.AddAsync(newToken);
+            }
+            await _context.SaveChangesAsync();
+
+            // Send Reset Password Email
+            var resetLink = $"http://localhost:4200/reset-password?token={Uri.EscapeDataString(resetToken)}";
+            try
+            {
+                await _emailService.SendPasswordResetEmail(email, resetLink, user.UserName!);
+            }
+            catch (Exception ex)
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+
+            return new ServiceResponseDto
+            {
+                IsSuccess = true,
+                Message = "Password reset email sent successfully."
+            };
+        }
+
+        public async Task<ServiceResponseDto> ResetPasswordAsync(string token, string newPassword)
+        {
+            var decodedToken = Uri.UnescapeDataString(token);
+            var tokenRecord = await _context.PasswordResetTokens.FirstOrDefaultAsync(t => t.Token == decodedToken);
+
+            if (tokenRecord == null || tokenRecord.ExpireTime < DateTime.Now)
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Invalid or expired token"
+                };
+            }
+
+            var user = await _userManager.FindByEmailAsync(tokenRecord.Email);
+            if (user == null)
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                };
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+            if (result.Succeeded)
+            {
+                _context.PasswordResetTokens.Remove(tokenRecord);
+                await _context.SaveChangesAsync();
+
+                return new ServiceResponseDto
+                {
+                    IsSuccess = true,
+                    Message = "Password has been reset successfully"
+                };
+            }
+
+            return new ServiceResponseDto
+            {
+                IsSuccess = false,
+                Message = "Oops! New password didn't go through"
+            };
         }
     }
 }

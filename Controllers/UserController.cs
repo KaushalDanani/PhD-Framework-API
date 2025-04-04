@@ -24,7 +24,6 @@ namespace Backend.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetUserProfile()
         {
-            //Console.WriteLine("WELCOME TO FIRST STEP!!");
             var user = await _userService.GetUserFromTokenAsync();
             if (user == null)
             {

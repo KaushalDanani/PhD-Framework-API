@@ -10,6 +10,7 @@ namespace Backend.Interfaces
         Task<IdentityResult> SignupAsync(SignupRequestDto signupDto);
         Task<IActionResult> SigninAsync(SigninRequestDto signinDto, string? confirmedEmail);
         Task<IdentityResult> ConfirmEmailAsync(string token, string email);
-        
+        Task<ServiceResponseDto> ForgotPasswordAsync(string email);
+        Task<ServiceResponseDto> ResetPasswordAsync(string token, string newPassword);
     }
 }
