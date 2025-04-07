@@ -2,6 +2,7 @@
 {
     public class UserProfileDto
     {
+        public string ProfileImageUrl { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string FatherName { get; set; }

@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using Backend.Entities;
+﻿using Backend.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +13,12 @@ namespace Backend.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.ProfileImage)
+                .WithMany()
+                .HasForeignKey(u => u.ProfileImageId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<Student>()
                 .HasOne(s => s.ApplicationUser)

@@ -8,5 +8,7 @@ namespace Backend.Interfaces
     {
         Task<ApplicationUser?> GetUserFromTokenAsync();
         Task<StudentProfileDto> UpdateStudentAsync(string registrationNo, StudentProfileUpdateDto newStudentProfile);
+        Task<ServiceResponseDto> ChangeProfileImageAsync(IFormFile image, string email);
+        Task<ApplicationUser> GetUserWithProfileImage(string userId);
     }
 }

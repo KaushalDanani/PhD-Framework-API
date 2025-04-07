@@ -47,7 +47,8 @@ namespace Backend.Services
                     UserName = $"{signupDto.step1.FirstName} {signupDto.step1.LastName}",
                     Email = signupDto.step1.Email,
                     PhoneNumber = signupDto.step1.Phone,
-                    ApplicationRoleId = role.Id
+                    ApplicationRoleId = role.Id,
+                    ProfileImageId = Guid.Parse(_configuration["GoogleDrive:DefaultImageFileId"]!)
                 };
 
                 var result = await _userManager.CreateAsync(user, signupDto.step4.Password);

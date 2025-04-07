@@ -8,13 +8,16 @@ namespace Backend.Entities
         public Guid FileId { get; set; }  // Unique identifier for files
 
         [Required]
+        public string StoredCloudFileId { get; set; }
+
+        [Required]
         public string RelatedTable { get; set; }  // Stores reference context (e.g., "ProgressReports")
 
         [Required, MaxLength(255)]
         public string FileName { get; set; }
 
         [Required]
-        public string mimeType { get; set; }
+        public string MimeType { get; set; }
 
         public long FileSize { get; set; }  // Store in bytes
 

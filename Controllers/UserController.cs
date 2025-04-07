@@ -32,6 +32,8 @@ namespace Backend.Controllers
 
             var role = user.Role.NormalizedName;
 
+            var userWithProfileImage = await _userService.GetUserWithProfileImage(user.Id);
+
             if (role == "STUDENT")
             {
                 var studentData = await _studentRepository.GetStudentByEmailAsync(user.Email!);
@@ -39,6 +41,7 @@ namespace Backend.Controllers
                 var studentProfileData = new StudentProfileDto
                 {
                     RegistrationNo = studentData.RegistrationId,
+                    ProfileImageUrl = userWithProfileImage.ProfileImage.FilePath,
                     DOB = studentData.DateOfBirth.ToString("D"),
                     FirstName = studentData.FirstName,
                     LastName = studentData.LastName,
@@ -85,6 +88,27 @@ namespace Backend.Controllers
             {
                 return StatusCode(500, new { message = "Server Error", details = ex.Message });
             }
+        }
+
+        [Authorize]
+        [HttpPost("upload-profile-image")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile image, [FromForm] string email)
+        {
+            if (image.Length == 0)
+            {
+                return BadRequest(new { message = "No file uploaded" });
+            }
+
+            if (image.Length > 2 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size is too large. Maximum allowed size is 2MB." });
+            }
+
+            var result = await _userService.ChangeProfileImageAsync(image, email);
+            if(result.IsSuccess)
+                return Ok(new { message = result.Message });
+
+            return BadRequest(new { message = "Image isn't uploaded, Try again later!" });
         }
     }
 }
