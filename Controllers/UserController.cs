@@ -13,11 +13,13 @@ namespace Backend.Controllers
     {
         private readonly IUserService _userService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IGuideRepository _guideRepository;
 
-        public UserController(IUserService userService, IStudentRepository studentRepository)
+        public UserController(IUserService userService, IStudentRepository studentRepository, IGuideRepository guideRepository)
         {
             _userService = userService;
             _studentRepository = studentRepository;
+            _guideRepository = guideRepository;
         }
 
         [Authorize]
@@ -60,6 +62,36 @@ namespace Backend.Controllers
                 };
 
                 return Ok(new { userData = studentProfileData });
+            }
+            else if (role == "GUIDE")
+            {
+                var guide = await _guideRepository.GetGuideByEmailAsync(user.Email!);
+
+                var guideProfileData = new GuideProfileDto
+                {
+                    ProfileImageUrl = userWithProfileImage.ProfileImage.FilePath,
+                    DOB = guide.DateOfBirth.ToString("D"),
+                    FirstName = guide.FirstName,
+                    LastName = guide.LastName,
+                    FatherName = guide.FatherName,
+                    Email = guide.Email,
+                    PhoneNo = guide.ContactNo,
+                    Gender = guide.Gender,
+                    Department = guide.DepartmentName,
+                    Faculty = guide.FacultyName,
+                    Address = guide.Address,
+                    City = guide.City,
+                    Pincode = guide.PinCode,
+                    State = guide.State,
+                    Country = guide.Country,
+                    Designation = guide.Designation,
+                    ExperienceYears = guide.ExperienceYears,
+                    Specialist = guide.Specialist,
+                    StudentLimit = guide.StudentsLimit,
+                    UpdatedAt = guide.UpdatedAt.ToString("F")
+                };
+
+                return Ok(new { userData = guideProfileData });
             }
             else
             {

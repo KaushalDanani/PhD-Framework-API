@@ -24,14 +24,16 @@ namespace Backend.Services
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStudentRepository _studentRepository;
 
-        public AuthService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+        public AuthService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IStudentRepository studentRepository)
         {
             _userManager = userManager;
             _context = context;
             _configuration = configuration;
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
+            _studentRepository = studentRepository;
         }
 
         public async Task<IdentityResult> SignupAsync(SignupRequestDto signupDto)
@@ -75,8 +77,7 @@ namespace Backend.Services
                     UpdatedAt = DateTime.Now
                 };
 
-                _context.Students.Add(newStudent);
-                await _context.SaveChangesAsync();
+                await _studentRepository.AddStudentAsync(newStudent);
 
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
@@ -107,9 +108,11 @@ namespace Backend.Services
             }
         }
 
-        public async Task<IActionResult> SigninAsync(SigninRequestDto signinDto, string? confirmedEmail)
+        public async Task<ServiceResponseDto> SigninAsync(SigninRequestDto signinDto, string? confirmedEmail)
         {
-            var user = await _userManager.FindByEmailAsync(signinDto.Email);
+            var user = await _userManager.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == signinDto.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, signinDto.Password))
                 throw new UnauthorizedAccessException("Invalid email or password!");
 
@@ -158,7 +161,23 @@ namespace Backend.Services
                     Expires = expiryTime
             });
 
-            return new StatusCodeResult(200);
+            if (user.Role.NormalizedName == "STUDENT")
+                return new ServiceResponseDto
+                {
+                    IsSuccess = true,
+                    Message = "/student/dashboard"
+                };
+            else if (user.Role.NormalizedName == "GUIDE")
+                return new ServiceResponseDto
+                {
+                    IsSuccess = true,
+                    Message = "/guide/dashboard"
+                };
+            else
+                return new ServiceResponseDto
+                {
+                    IsSuccess = true
+                };
         }
 
         public async Task<IdentityResult> ConfirmEmailAsync(string token, string email)

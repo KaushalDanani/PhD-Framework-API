@@ -27,6 +27,9 @@ namespace Backend.Entities
         [Required]
         public string Gender { get; set; }
 
+        [Required]
+        public DateTime DateOfBirth { get; set; }
+
         [MaxLength(100)]
         public string DepartmentName { get; set; }
 
@@ -55,9 +58,6 @@ namespace Backend.Entities
         public string Designation { get; set; }
 
         public int StudentsLimit { get; set; }
-
-        [MaxLength(255)]
-        public string GuideLetterPath { get; set; }
 
         public int ExperienceYears { get; set; }
 

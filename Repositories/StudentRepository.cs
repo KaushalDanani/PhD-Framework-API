@@ -14,6 +14,11 @@ namespace Backend.Repositories
             _context = context;
         }
 
+        public async Task AddStudentAsync(Student student)
+        {
+            await _context.Students.AddAsync(student);
+        }
+
         public async Task<Student> GetStudentByEmailAsync(string email)
         {
             return (await _context.Students.FirstOrDefaultAsync(s => s.Email == email))!;

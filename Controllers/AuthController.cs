@@ -12,11 +12,13 @@ namespace Backend.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IAuthService authService, IStudentRepository studentRepository)
+        public AuthController(IAuthService authService, IStudentRepository studentRepository, IConfiguration configuration)
         {
             _authService = authService;
             _studentRepository = studentRepository;
+            _configuration = configuration;
         }
 
         [HttpPost("signup")]
@@ -43,12 +45,12 @@ namespace Backend.Controllers
         public async Task<IActionResult> Signin([FromBody] SigninRequestDto signinDto, [FromQuery] string? confirmedEmail)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new { message = "Invalid sign-in model request" });
 
             try
             {
-                await _authService.SigninAsync(signinDto, confirmedEmail);
-                return Ok();
+                var result = await _authService.SigninAsync(signinDto, confirmedEmail);
+                return Ok(new { redirectURL = result.Message});
             }
             catch (UnauthorizedAccessException ex)
             {

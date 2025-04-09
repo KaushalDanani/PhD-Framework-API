@@ -51,5 +51,26 @@ namespace Backend.Services
                 throw new Exception($"Failed to send email. Status Code: {response.StatusCode}");
             }
         }
+
+        public async Task SendTemporaryCredentialEmailAsync(string emailTo, string passwordResetLink, string username, string designation, string password)
+        {
+            var from = new EmailAddress("kaushal00095@gmail.com", "no-reply");
+            var to = new EmailAddress(emailTo, username);
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "TemporaryAccountCredentialTemplate.html");
+            var htmlContent = File.ReadAllText(templatePath)
+                .Replace("{{resetPasswordLink}}", passwordResetLink)
+                .Replace("{{userName}}", username)
+                .Replace("{{Designation}}", designation)
+                .Replace("{{email}}", emailTo)
+                .Replace("{{password}}", password);
+            var subject = "PhD Framework - Temporary account credential";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, null, htmlContent);
+            var response = await _sendGridClient.SendEmailAsync(msg);
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new Exception($"Failed to send email. Status Code: {response.StatusCode}");
+            }
+        }
     }
 }

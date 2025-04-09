@@ -78,6 +78,8 @@ builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IGuideRepository, GuideRepository>();
+builder.Services.AddScoped<IGuideService, GuideService>();
 
 builder.Services.AddScoped<ISendGridClient>(provider =>
 {
