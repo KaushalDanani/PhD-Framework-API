@@ -1,6 +1,6 @@
 ﻿namespace Backend.DTOs
 {
-    public class StudentProfileUpdateDto
+    public class UserProfileUpdateDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -13,5 +13,6 @@
         public string Pincode { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
+        public string? Specialist { get; set; } = null;     // For Guide 
     }
 }

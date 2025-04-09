@@ -101,25 +101,54 @@ namespace Backend.Controllers
         }
 
         [Authorize]
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateStudentProfile(string id, [FromBody] StudentProfileUpdateDto newStudent)
+        [HttpPatch("update-profile")]
+        public async Task<IActionResult> UpdateUserProfile([FromBody] UserProfileUpdateDto newUserData)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            try
+            var user = await _userService.GetUserFromTokenAsync();
+            if (user == null)
             {
-                var updatedStudent = await _userService.UpdateStudentAsync(id, newStudent);
-                return Ok(new {userData = updatedStudent});
+                return Unauthorized(new { message = "Invalid or expired Authorization token." });
             }
-            catch (UserNotFoundException ex)
+
+            var role = user.Role.NormalizedName;
+
+            if (role == "STUDENT")
             {
-                return NotFound("Student doesn't exist!");
+                try
+                {
+                    var updatedStudent = await _userService.UpdateStudentAsync(user, newUserData);
+                    return Ok(new { userData = updatedStudent });
+                }
+                catch (UserNotFoundException ex)
+                {
+                    return NotFound("Student doesn't exist!");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { message = "Server Error", details = ex.Message });
+                }
             }
-            catch (Exception ex)
+            else if (role == "GUIDE")
             {
-                return StatusCode(500, new { message = "Server Error", details = ex.Message });
+                try
+                {
+                    var updatedGuide = await _userService.UpdateGuideAsync(user, newUserData);
+                    return Ok(new { userData = updatedGuide });
+                }
+                catch (UserNotFoundException ex)
+                {
+                    return NotFound("Guide doesn't exist!");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { message = "Server Error", details = ex.Message });
+                }
             }
+
+            return BadRequest(new { message = "Server Error" });
         }
 
         [Authorize]

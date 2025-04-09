@@ -18,5 +18,10 @@ namespace Backend.Repositories
         {
             return (await _context.Guides.FirstOrDefaultAsync(g => g.Email == email))!;
         }
+
+        public async Task<Guide> GetGuideByUserIdAsync(string userId)
+        {
+            return (await _context.Guides.FirstOrDefaultAsync(g => g.UserId == userId))!;
+        }
     }
 }

@@ -19,8 +19,9 @@ namespace Backend.Services
         private readonly IGoogleDriveService _googleDriveService;
         private readonly IApplicationFileRepository _fileRepository;
         private readonly IConfiguration _configuration;
+        private readonly IGuideRepository _guideRepository;
 
-        public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, IStudentRepository studentRepository, IHttpContextAccessor contextAccessor, IGoogleDriveService googleDriveService, IApplicationFileRepository fileRepository, IConfiguration configuration)
+        public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, IStudentRepository studentRepository, IHttpContextAccessor contextAccessor, IGoogleDriveService googleDriveService, IApplicationFileRepository fileRepository, IConfiguration configuration, IGuideRepository guideRepository)
         {
             _userManager = userManager;
             _context = dbContext;
@@ -29,6 +30,7 @@ namespace Backend.Services
             _googleDriveService = googleDriveService;
             _fileRepository = fileRepository;
             _configuration = configuration;
+            _guideRepository = guideRepository;
         }
 
         public async Task<ApplicationUser?> GetUserFromTokenAsync()
@@ -62,40 +64,38 @@ namespace Backend.Services
                 .FirstOrDefaultAsync(u => u.Id == userId))!;
         }
 
-        public async Task<StudentProfileDto> UpdateStudentAsync(string registrationNo, StudentProfileUpdateDto newStudentProfile)
+        public async Task<StudentProfileDto> UpdateStudentAsync(ApplicationUser user, UserProfileUpdateDto newUserProfile)
         {
-            var existingStudent = await _studentRepository.GetStudentByRegistrationIdAsync(registrationNo);
-
+            var existingStudent = await _studentRepository.GetStudentByUserIdAsync(user.Id);
             if (existingStudent == null)
             { ;
                 throw new UserNotFoundException("Student not found!");
             }
 
-            var user = await _userManager.FindByEmailAsync(existingStudent.Email);
             var userWithProfileImage = await GetUserWithProfileImage(user.Id);
 
             // Updated fields to existing entity
-            if (!string.IsNullOrEmpty(newStudentProfile.FirstName))
-                existingStudent.FirstName = newStudentProfile.FirstName;
-            if (!string.IsNullOrEmpty(newStudentProfile.LastName))
-                existingStudent.LastName = newStudentProfile.LastName;
-            if (!string.IsNullOrEmpty(newStudentProfile.FatherName))
-                existingStudent.FatherName = newStudentProfile.FatherName;
-            if (!string.IsNullOrEmpty(newStudentProfile.PhoneNo))
-                existingStudent.PhoneNo = newStudentProfile.PhoneNo;
-            if (!string.IsNullOrEmpty(newStudentProfile.Address))
-                existingStudent.Address = newStudentProfile.Address;
-            if (!string.IsNullOrEmpty(newStudentProfile.Gender))
-                existingStudent.Gender = newStudentProfile.Gender;
-            if (!string.IsNullOrEmpty(newStudentProfile.City))
-                existingStudent.City = newStudentProfile.City;
-            existingStudent.DateOfBirth = newStudentProfile.Dob;
-            if (!string.IsNullOrEmpty(newStudentProfile.State))
-                existingStudent.State = newStudentProfile.State;
-            if (!string.IsNullOrEmpty(newStudentProfile.Pincode))
-                existingStudent.Pincode = newStudentProfile.Pincode;
-            if (!string.IsNullOrEmpty(newStudentProfile.Country))
-                existingStudent.Country = newStudentProfile.Country;
+            if (!string.IsNullOrEmpty(newUserProfile.FirstName))
+                existingStudent.FirstName = newUserProfile.FirstName;
+            if (!string.IsNullOrEmpty(newUserProfile.LastName))
+                existingStudent.LastName = newUserProfile.LastName;
+            if (!string.IsNullOrEmpty(newUserProfile.FatherName))
+                existingStudent.FatherName = newUserProfile.FatherName;
+            if (!string.IsNullOrEmpty(newUserProfile.PhoneNo))
+                existingStudent.PhoneNo = newUserProfile.PhoneNo;
+            if (!string.IsNullOrEmpty(newUserProfile.Address))
+                existingStudent.Address = newUserProfile.Address;
+            if (!string.IsNullOrEmpty(newUserProfile.Gender))
+                existingStudent.Gender = newUserProfile.Gender;
+            if (!string.IsNullOrEmpty(newUserProfile.City))
+                existingStudent.City = newUserProfile.City;
+            existingStudent.DateOfBirth = newUserProfile.Dob;
+            if (!string.IsNullOrEmpty(newUserProfile.State))
+                existingStudent.State = newUserProfile.State;
+            if (!string.IsNullOrEmpty(newUserProfile.Pincode))
+                existingStudent.Pincode = newUserProfile.Pincode;
+            if (!string.IsNullOrEmpty(newUserProfile.Country))
+                existingStudent.Country = newUserProfile.Country;
             existingStudent.UpdatedAt = DateTime.Now;
 
             try
@@ -104,7 +104,7 @@ namespace Backend.Services
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Database isn't updated!");
+                throw new InvalidOperationException("Profile isn't updated!");
             }
 
             var studentDto = new StudentProfileDto
@@ -129,6 +129,78 @@ namespace Backend.Services
             };
 
             return studentDto;
+        }
+
+        public async Task<GuideProfileDto> UpdateGuideAsync(ApplicationUser user, UserProfileUpdateDto newGuideProfile)
+        {
+            var existingGuide = await _guideRepository.GetGuideByUserIdAsync(user.Id);
+            if (existingGuide == null)
+            {
+                throw new UserNotFoundException("Guide not found!");
+            }
+
+            var userWithProfileImage = await GetUserWithProfileImage(user.Id);
+
+            // Updated fields to existing entity
+            if (!string.IsNullOrEmpty(newGuideProfile.FirstName))
+                existingGuide.FirstName = newGuideProfile.FirstName;
+            if (!string.IsNullOrEmpty(newGuideProfile.LastName))
+                existingGuide.LastName = newGuideProfile.LastName;
+            if (!string.IsNullOrEmpty(newGuideProfile.FatherName))
+                existingGuide.FatherName = newGuideProfile.FatherName;
+            if (!string.IsNullOrEmpty(newGuideProfile.PhoneNo))
+                existingGuide.ContactNo = newGuideProfile.PhoneNo;
+            if (!string.IsNullOrEmpty(newGuideProfile.Address))
+                existingGuide.Address = newGuideProfile.Address;
+            if (!string.IsNullOrEmpty(newGuideProfile.Gender))
+                existingGuide.Gender = newGuideProfile.Gender;
+            if (!string.IsNullOrEmpty(newGuideProfile.City))
+                existingGuide.City = newGuideProfile.City;
+            existingGuide.DateOfBirth = newGuideProfile.Dob;
+            if (!string.IsNullOrEmpty(newGuideProfile.State))
+                existingGuide.State = newGuideProfile.State;
+            if (!string.IsNullOrEmpty(newGuideProfile.Pincode))
+                existingGuide.PinCode = newGuideProfile.Pincode;
+            if (!string.IsNullOrEmpty(newGuideProfile.Country))
+                existingGuide.Country = newGuideProfile.Country;
+            if (!string.IsNullOrEmpty(newGuideProfile.Specialist))
+                existingGuide.Specialist = newGuideProfile.Specialist;
+            existingGuide.UpdatedAt = DateTime.Now;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Profile isn't updated!");
+            }
+
+            var guideDto = new GuideProfileDto
+            {
+                ProfileImageUrl = userWithProfileImage.ProfileImage.FilePath,
+                FirstName = existingGuide.FirstName,
+                LastName = existingGuide.LastName,
+                FatherName = existingGuide.FatherName,
+                Email = existingGuide.Email,
+                PhoneNo = existingGuide.ContactNo,
+                Address = existingGuide.Address,
+                Gender = existingGuide.Gender,
+                City = existingGuide.City,
+                DOB = existingGuide.DateOfBirth.ToLongDateString(),
+                Department = existingGuide.DepartmentName,
+                Faculty = existingGuide.FacultyName,
+                State = existingGuide.State,
+                Pincode = existingGuide.PinCode,
+                Country = existingGuide.Country,
+                Designation = existingGuide.Designation,
+                Specialist = existingGuide.Specialist,
+                StudentLimit = existingGuide.StudentsLimit,
+                ExperienceYears = existingGuide.ExperienceYears,
+                UpdatedAt = existingGuide.UpdatedAt.ToString()
+            };
+
+            return guideDto;
         }
 
         public async Task<ServiceResponseDto> ChangeProfileImageAsync(IFormFile image, string email)
