@@ -80,6 +80,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IGuideRepository, GuideRepository>();
 builder.Services.AddScoped<IGuideService, GuideService>();
+builder.Services.AddScoped<IPhDTitleRepository, PhDTitleRepository>();
+builder.Services.AddScoped<IPhDTitleService, PhDTitleService>();
 
 builder.Services.AddScoped<ISendGridClient>(provider =>
 {

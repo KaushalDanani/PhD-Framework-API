@@ -5,5 +5,6 @@ namespace Backend.Interfaces
     public interface IGuideService
     {
         Task<ServiceResponseDto> AddGuideAsync(AddGuideRequestDto guideRequest);
+        Task<List<GetGuideListResponseDto>> ListOfGuidesAsync();
     }
 }

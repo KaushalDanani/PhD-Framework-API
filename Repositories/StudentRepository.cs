@@ -17,6 +17,7 @@ namespace Backend.Repositories
         public async Task AddStudentAsync(Student student)
         {
             await _context.Students.AddAsync(student);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Student> GetStudentByEmailAsync(string email)

@@ -1,4 +1,5 @@
-﻿using Backend.Entities;
+﻿using Backend.DTOs;
+using Backend.Entities;
 
 namespace Backend.Interfaces
 {
@@ -6,5 +7,6 @@ namespace Backend.Interfaces
     {
         Task<Guide> GetGuideByEmailAsync(string email);
         Task<Guide> GetGuideByUserIdAsync(string userId);
+        Task<List<GetGuideListResponseDto>> GetAllGuideAsListAsync();
     }
 }

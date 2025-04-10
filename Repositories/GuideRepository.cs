@@ -1,4 +1,5 @@
 ﻿using Backend.Data;
+using Backend.DTOs;
 using Backend.Entities;
 using Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,17 @@ namespace Backend.Repositories
         public async Task<Guide> GetGuideByUserIdAsync(string userId)
         {
             return (await _context.Guides.FirstOrDefaultAsync(g => g.UserId == userId))!;
+        }
+
+        public async Task<List<GetGuideListResponseDto>> GetAllGuideAsListAsync()
+        {
+            return await _context.Guides
+                .Select(g => new GetGuideListResponseDto
+                {
+                    GuideId = g.GuideId,
+                    FullName = g.FirstName + " " + g.FatherName + " " + g.LastName
+                })
+                .ToListAsync();
         }
     }
 }

@@ -13,13 +13,15 @@ namespace Backend.Services
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
+        private readonly IGuideRepository _guideRepository;
 
-        public GuideService(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager, IEmailService emailService)
+        public GuideService(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager, IEmailService emailService, IGuideRepository guideRepository)
         {
             _context = context;
             _configuration = configuration;
             _userManager = userManager;
             _emailService = emailService;
+            _guideRepository = guideRepository;
         }
 
         public async Task<ServiceResponseDto> AddGuideAsync(AddGuideRequestDto guideRequest)
@@ -126,6 +128,11 @@ namespace Backend.Services
                     IsSuccess = true
                 };
             }
+        }
+
+        public async Task<List<GetGuideListResponseDto>> ListOfGuidesAsync()
+        {
+            return await _guideRepository.GetAllGuideAsListAsync();
         }
     }
 }
