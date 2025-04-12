@@ -6,5 +6,6 @@ namespace Backend.Interfaces
     {
         Task<bool> RegisterPhDTitle(PhDTitleRegistrationRequestDto  phDTitleRegistrationDto);
         (int year, int term) CalculatePhdYearAndTerm(DateTime startDate);
+        Task<bool> IsPhDTitleRegisterAsync();
     }
 }

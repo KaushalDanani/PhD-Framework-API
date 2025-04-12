@@ -1,6 +1,7 @@
 ﻿using Backend.Data;
 using Backend.Entities;
 using Backend.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Repositories
 {
@@ -17,6 +18,16 @@ namespace Backend.Repositories
         {
             await _context.PhDTitles.AddAsync(phDTitle);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> GetPhDTitleRecordAsync(string phdId)
+        {
+            var record = await _context.PhDTitles.FirstOrDefaultAsync(phDt => phDt.RegistrationId == phdId);
+
+            if(record != null)
+                return true;
+
+            return false;
         }
     }
 }

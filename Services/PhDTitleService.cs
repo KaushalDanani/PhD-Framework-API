@@ -1,16 +1,23 @@
-﻿using Backend.DTOs;
+﻿using Backend.CustomExceptions;
+using System.IdentityModel.Tokens.Jwt;
+using Backend.DTOs;
 using Backend.Entities;
 using Backend.Interfaces;
+using Backend.Repositories;
 
 namespace Backend.Services
 {
     public class PhDTitleService : IPhDTitleService
     {
         private readonly IPhDTitleRepository _phDTitleRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStudentRepository _studentRepository;
 
-        public PhDTitleService(IPhDTitleRepository phDTitleRepository)
+        public PhDTitleService(IPhDTitleRepository phDTitleRepository, IHttpContextAccessor contextAccessor, IStudentRepository studentRepository)
         {
             _phDTitleRepository = phDTitleRepository;
+            _httpContextAccessor = contextAccessor;
+            _studentRepository = studentRepository;
         }
 
         public (int year, int term) CalculatePhdYearAndTerm(DateTime startDate)
@@ -58,6 +65,32 @@ namespace Backend.Services
             };
             await _phDTitleRepository.AddPhdTitle(phdTitle);
             return true;
+        }
+
+        public async Task<bool> IsPhDTitleRegisterAsync()
+        {
+            var token = _httpContextAccessor.HttpContext!.Request.Cookies["AuthToken"];
+            //Console.WriteLine("Token:" + token);
+            if (string.IsNullOrEmpty(token))
+                throw new InvalidOperationException("Invalid or expire token");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(token);
+            var userId = jsonToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            //Console.WriteLine($"User Id: {userId}");
+
+            if (string.IsNullOrEmpty(userId))
+                throw new UserNotFoundException("Unauthorized User");
+
+            // Get Student from userId which is basically get from jwt bearer
+            var associatedStudent = await _studentRepository.GetStudentByUserIdAsync(userId);
+            //Console.WriteLine($"## Student: {associatedStudent}");
+
+            if (associatedStudent == null)
+                throw new UnauthorizedAccessException("Unauthorized Student Access");
+
+            var isRegister = await _phDTitleRepository.GetPhDTitleRecordAsync(associatedStudent.RegistrationId);
+            return isRegister;
         }
     }
 }

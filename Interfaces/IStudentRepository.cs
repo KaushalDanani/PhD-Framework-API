@@ -7,6 +7,6 @@ namespace Backend.Interfaces
         Task AddStudentAsync(Student student);
         Task<Student> GetStudentByEmailAsync(string email);
         Task<Student?> GetStudentByRegistrationIdAsync(string id);
-        Task<Student> GetStudentByUserIdAsync(string userId);
+        Task<Student?> GetStudentByUserIdAsync(string userId);
     }
 }

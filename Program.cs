@@ -82,6 +82,8 @@ builder.Services.AddScoped<IGuideRepository, GuideRepository>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 builder.Services.AddScoped<IPhDTitleRepository, PhDTitleRepository>();
 builder.Services.AddScoped<IPhDTitleService, PhDTitleService>();
+builder.Services.AddScoped<IProgressReportRepository, ProgressReportRepository>();
+builder.Services.AddScoped<IProgressReportService, ProgressReportService>();
 
 builder.Services.AddScoped<ISendGridClient>(provider =>
 {

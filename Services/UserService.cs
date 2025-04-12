@@ -205,7 +205,6 @@ namespace Backend.Services
 
         public async Task<ServiceResponseDto> ChangeProfileImageAsync(IFormFile image, string email)
         {
-            Console.WriteLine("Welcome to Service of File upload!!");
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".heic" };
             var fileExtension = Path.GetExtension(image.FileName).ToLower();
 
