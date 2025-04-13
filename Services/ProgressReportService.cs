@@ -16,11 +16,13 @@ namespace Backend.Services
         private readonly IGoogleDriveService _googleDriveService;
         private readonly IConfiguration _configuration;
         private readonly IApplicationFileRepository _fileRepository;
+        private readonly IPhDTitleRepository _phDTitleRepository;
+        private readonly IEmailService _emailService;
 
         public ProgressReportService(IHttpContextAccessor httpContextAccessor,
             IProgressReportRepository progressReportRepository, IStudentRepository studentRepository,
             IGoogleDriveService googleDriveService, IConfiguration configuration,
-            IApplicationFileRepository fileRepository)
+            IApplicationFileRepository fileRepository, IPhDTitleRepository titleRepository, IEmailService emailService)
         {
             _httpContextAccessor = httpContextAccessor;
             _progressReportRepository = progressReportRepository;
@@ -28,6 +30,8 @@ namespace Backend.Services
             _googleDriveService = googleDriveService;
             _configuration = configuration;
             _fileRepository = fileRepository;
+            _phDTitleRepository = titleRepository;
+            _emailService = emailService;
         }
 
         public async Task<ServiceResponseDto> UploadNewProgressReportAsync(IFormFile reportFile)
@@ -271,6 +275,27 @@ namespace Backend.Services
             catch (Exception ex)
             {
                 throw new Exception("Report file isn't updated");
+            }
+
+            var phdTitleRecord = await _phDTitleRepository.GetPhDTitleAsync(associatedStudent.RegistrationId);
+            var guideEmail = phdTitleRecord.Guide.Email;
+            var guideName = $"{phdTitleRecord.Guide.FirstName} {phdTitleRecord.Guide.LastName}";
+
+            try
+            {
+                await _emailService.SendProgressReportUpdatedByStudentEmailToGuideAsync(
+                    guideEmail,
+                    guideName,
+                    $"{associatedStudent.FirstName} {associatedStudent.LastName}", associatedStudent.RegistrationId,
+                    associatedStudent.Email,
+                    phdTitleRecord.PhDTitleName,
+                    phdTitleRecord.ResearchArea,
+                    reportWithFile.ApplicationFile.FilePath,
+                    reportWithFile.ApplicationFile.FileName);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Guide isn't notify through email, but progress report updated successfully");
             }
 
             return new ProgressReportResponseDto

@@ -54,6 +54,7 @@ namespace Backend.Repositories
                 select new ProgressReportRequestsMetaDataDto
                 {
                     RegistrationId = student.RegistrationId,
+                    isChecked = false,
                     Title = title.PhDTitleName,
                     ResearchArea = title.ResearchArea,
                     StudentName = student.FirstName + " " + student.LastName,

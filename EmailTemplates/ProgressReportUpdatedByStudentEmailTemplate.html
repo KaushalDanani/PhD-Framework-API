@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .email-container {
+            width: 100%;
+            max-width: 650px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 12px 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+
+        .img-container {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            background-color: #6c4ed9;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+            .header h1 {
+                color: #ffffff;
+                margin: 0;
+                font-size: 1.5rem;
+            }
+
+        .content {
+            padding: 1.3rem 1.5rem 0rem 2rem;
+            text-align: left;
+        }
+
+        .greetings {
+            font-size: 1rem;
+            margin: 0.5rem 0 0.5rem 0rem;
+        }
+
+        .content p {
+            text-align: justify;
+            font-size: 1rem;
+            color: #555555;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .student-details-table {
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        .table-header {
+            padding: 0.7rem 1rem;
+            font-size: 16px;
+            text-align: left;
+            background-color: #f2f2f2;
+        }
+
+        .student-details-title-content {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .view-progress-report {
+            display: inline-block;
+            margin: 1.25rem 0rem 0.2rem 0rem;
+            padding: 10px 20px;
+            background-color: #6c4ed9;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #ebebeb;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 0.77rem;
+            color: #9c9c9c;
+        }
+
+        /* Table for email layout */
+        table {
+            width: 100%;
+            border-spacing: 0;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <table class="email-container">
+        <tr>
+            <td class="img-container">
+                <img src="https://upload.wikimedia.org/wikipedia/en/b/bf/Msu_baroda_logo.png" width="150px" height="150px" alt="MSU Logo">
+            </td>
+        </tr>
+        <tr>
+            <td class="header">
+                <h1>Progress Report Altered By Student</h1>
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <h2 class="greetings">Dear, {{userName}}</h2>
+                <p>We hope that you are having a great day!</p>
+                <p>
+                    We would like to inform you that a student under your supervision has changed their progress report. We kindly request you to review the changes.
+                </p>
+                <p>Please find the relevant details below:</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 1rem 2rem;">
+                <table class="student-details-table">
+                    <thead>
+                        <tr>
+                            <th class="table-header" colspan="2">
+                                Student Details
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="student-details-title-content"><strong>Student Name</strong></td>
+                            <td class="student-details-title-content">{{studentName}}</td>
+                        </tr>
+                        <tr>
+                            <td class="student-details-title-content"><strong>Registration ID</strong></td>
+                            <td class="student-details-title-content">{{registrationNo}}</td>
+                        </tr>
+                        <tr>
+                            <td class="student-details-title-content"><strong>Student Email</strong></td>
+                            <td class="student-details-title-content">{{studentEmail}}</td>
+                        </tr>
+                        <tr>
+                            <td class="student-details-title-content"><strong>PhD Title</strong></td>
+                            <td class="student-details-title-content">{{phdTitle}}</td>
+                        </tr>
+                        <tr>
+                            <td class="student-details-title-content"><strong>Research Area</strong></td>
+                            <td class="student-details-title-content">{{researchArea}}</td>
+                        </tr>
+                        <tr>
+                            <td class="student-details-title-content"><strong>Report File Name</strong></td>
+                            <td class="student-details-title-content">{{reportFileName}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a href="{{viewNewReport}}" target="_blank"
+                   style="display: inline-block; margin: 20px 0 5px 0; padding: 10px 20px;
+                          background-color: #6c4ed9; color: #ffffff; text-decoration: none;
+                          border-radius: 4px; font-size: 16px; font-weight: bold;">
+	                View Changed Report
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                <p>
+                    Please reach out to the admin team/Computer Center in case of any queries.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

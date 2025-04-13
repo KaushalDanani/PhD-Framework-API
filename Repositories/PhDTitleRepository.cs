@@ -20,7 +20,7 @@ namespace Backend.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> GetPhDTitleRecordAsync(string phdId)
+        public async Task<bool> IsPhDTitleRecordFoundAsync(string phdId)
         {
             var record = await _context.PhDTitles.FirstOrDefaultAsync(phDt => phDt.RegistrationId == phdId);
 
@@ -28,6 +28,13 @@ namespace Backend.Repositories
                 return true;
 
             return false;
+        }
+
+        public async Task<PhDTitle> GetPhDTitleAsync(string phdId)
+        {
+            return (await _context.PhDTitles
+                .Include(nav => nav.Guide)
+                .FirstOrDefaultAsync(pt => pt.RegistrationId == phdId))!;
         }
     }
 }

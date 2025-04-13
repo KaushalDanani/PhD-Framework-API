@@ -5,6 +5,7 @@ namespace Backend.Interfaces
     public interface IPhDTitleRepository
     {
         Task AddPhdTitle(PhDTitle phDTitle);
-        Task<bool> GetPhDTitleRecordAsync(string phdId);
+        Task<bool> IsPhDTitleRecordFoundAsync(string phdId);
+        Task<PhDTitle> GetPhDTitleAsync(string phdId);
     }
 }

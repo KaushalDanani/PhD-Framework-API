@@ -89,7 +89,7 @@ namespace Backend.Services
             if (associatedStudent == null)
                 throw new UnauthorizedAccessException("Unauthorized Student Access");
 
-            var isRegister = await _phDTitleRepository.GetPhDTitleRecordAsync(associatedStudent.RegistrationId);
+            var isRegister = await _phDTitleRepository.IsPhDTitleRecordFoundAsync(associatedStudent.RegistrationId);
             return isRegister;
         }
     }

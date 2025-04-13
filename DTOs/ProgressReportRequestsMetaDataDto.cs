@@ -3,6 +3,7 @@
     public class ProgressReportRequestsMetaDataDto
     {
         public string ProfileImageUrl { get; set; }
+        public bool isChecked { get; set; } = false;
         public string StudentName { get; set; }
         public string RegistrationId { get; set; }
         public string Title { get; set; }

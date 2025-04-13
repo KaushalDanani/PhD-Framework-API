@@ -72,5 +72,31 @@ namespace Backend.Services
                 throw new Exception($"Failed to send email. Status Code: {response.StatusCode}");
             }
         }
+
+        public async Task SendProgressReportUpdatedByStudentEmailToGuideAsync(string emailTo, string guideUserName, string studentName,
+            string registrationNo, string studentEmail, string phdTitle, string researchArea, string newUpdatedReportFilePath,
+            string reportFileName)
+        {
+            var from = new EmailAddress("kaushal00095@gmail.com", "no-reply");
+            var to = new EmailAddress(emailTo, guideUserName);
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "ProgressReportUpdatedByStudentEmailTemplate.html");
+            var htmlContent = File.ReadAllText(templatePath)
+                .Replace("{{userName}}", guideUserName)
+                .Replace("{{viewNewReport}}", newUpdatedReportFilePath)
+                .Replace("{{studentName}}", studentName)
+                .Replace("{{registrationNo}}", registrationNo)
+                .Replace("{{phdTitle}}", phdTitle)
+                .Replace("{{reportFileName}}", reportFileName)
+                .Replace("{{researchArea}}", researchArea)
+                .Replace("{{studentEmail}}", studentEmail);
+            var subject = "PhD Framework Update – Student Altered Progress Report; Please Review";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, null, htmlContent);
+            var response = await _sendGridClient.SendEmailAsync(msg);
+
+            if (response.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new Exception($"Failed to send email. Status Code: {response.StatusCode}");
+            }
+        }
     }
 }
