@@ -54,6 +54,7 @@ namespace Backend.Repositories
                 select new ProgressReportRequestsMetaDataDto
                 {
                     RegistrationId = student.RegistrationId,
+                    ReportNo = report.ProgressReportNo,
                     isChecked = false,
                     Title = title.PhDTitleName,
                     ResearchArea = title.ResearchArea,
@@ -65,6 +66,15 @@ namespace Backend.Repositories
                 }).ToListAsync();
 
             return result;
+        }
+
+        public async Task<List<ProgressReport>> GetSelectedProgressReportsByKeyCombinationsAsync(List<ReportKeyDto> keys)
+        {
+            var registrationIds = keys.Select(k => k.RegistrationId).Distinct().ToList();
+
+            return await _context.ProgressReports
+                .Where(pr => registrationIds.Contains(pr.RegistrationId) && pr.ReportStatus)
+                .ToListAsync();
         }
     }
 }

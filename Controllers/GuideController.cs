@@ -1,4 +1,5 @@
 ﻿using Backend.CustomExceptions;
+using Backend.DTOs;
 using Backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +41,27 @@ namespace Backend.Controllers
             catch (UserNotFoundException ue)
             {
                 return Unauthorized(new { message = ue.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "GUIDE")]
+        [HttpPost("review-progress-reports")]
+        public async Task<IActionResult> ReviewProgressReports([FromBody] ProgressReportReviewDto reportReviewDto)
+        {
+            if(!reportReviewDto.Reports.Any())
+                return BadRequest(new { message = "No reports provided" });
+
+            try
+            {
+                var result = await _guideService.UpdatedProgressReportsReviewStatus(reportReviewDto);
+                if (result.IsSuccess)
+                    return Ok(new { message = result.Message });
+
+                return BadRequest(new { message = result.Message });
             }
             catch (Exception ex)
             {

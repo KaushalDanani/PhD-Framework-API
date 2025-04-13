@@ -161,5 +161,45 @@ namespace Backend.Services
 
             return await _progressReportRepository.GetStudentsPendingReportsByGuideIdAsync(int.Parse(guideId));
         }
+
+        public async Task<ServiceResponseDto> UpdatedProgressReportsReviewStatus(ProgressReportReviewDto reportReview)
+        {
+            var listOfReports =
+                await _progressReportRepository.GetSelectedProgressReportsByKeyCombinationsAsync(reportReview.Reports);
+
+            var keys = reportReview.Reports
+                .Select(r => new { r.RegistrationId, r.ReportNo })
+                .ToList();
+
+            var reportsToUpdateReviewStatus = listOfReports
+                .Where(pr => keys.Any(k => k.RegistrationId == pr.RegistrationId && k.ReportNo == pr.ProgressReportNo))
+                .ToList();
+
+            if (!reportsToUpdateReviewStatus.Any())
+            {
+                return new ServiceResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "No matching reports found."
+                };
+            }
+
+            foreach (var report in reportsToUpdateReviewStatus)
+            {
+                report.GuideStatus = reportReview.Action;
+                report.GuideReviewDate = DateTime.Now;
+                report.GuideRemark = reportReview.Remark;
+                report.ReportStatus = reportReview.Action;
+                report.LastUpdatedAt = DateTime.Now;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new ServiceResponseDto
+            {
+                IsSuccess = true,
+                Message = $"{reportsToUpdateReviewStatus.Count} progress report(s) {(reportReview.Action ? "accepted" : "rejected")} successfully"
+            };
+        }
     }
 }

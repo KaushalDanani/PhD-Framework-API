@@ -9,5 +9,6 @@ namespace Backend.Interfaces
         Task<ProgressReport?> GetLastUploadedProgressReportAsync(string phdId);
         Task<ProgressReport> GetProgressReportWithReportFile(ProgressReport progressReport);
         Task<List<ProgressReportRequestsMetaDataDto>> GetStudentsPendingReportsByGuideIdAsync(int guideId);
-    }
+        Task<List<ProgressReport>> GetSelectedProgressReportsByKeyCombinationsAsync(List<ReportKeyDto> keys);
+}
 }
