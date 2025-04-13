@@ -1,7 +1,10 @@
-﻿using Backend.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Backend.CustomExceptions;
+using Backend.Data;
 using Backend.DTOs;
 using Backend.Entities;
 using Backend.Interfaces;
+using Google.Apis.Drive.v3.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,14 +17,20 @@ namespace Backend.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IGuideRepository _guideRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserService _userService;
+        private readonly IProgressReportRepository _progressReportRepository;
 
-        public GuideService(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager, IEmailService emailService, IGuideRepository guideRepository)
+        public GuideService(ApplicationDbContext context, IConfiguration configuration, UserManager<ApplicationUser> userManager, IEmailService emailService, IGuideRepository guideRepository, IHttpContextAccessor contextAccessor, IUserService userService, IProgressReportRepository progressReportRepository)
         {
             _context = context;
             _configuration = configuration;
             _userManager = userManager;
             _emailService = emailService;
             _guideRepository = guideRepository;
+            _httpContextAccessor = contextAccessor;
+            _userService = userService;
+            _progressReportRepository = progressReportRepository;
         }
 
         public async Task<ServiceResponseDto> AddGuideAsync(AddGuideRequestDto guideRequest)
@@ -133,6 +142,24 @@ namespace Backend.Services
         public async Task<List<GetGuideListResponseDto>> ListOfGuidesAsync()
         {
             return await _guideRepository.GetAllGuideAsListAsync();
+        }
+
+        public async Task<List<ProgressReportRequestsMetaDataDto>> GetProgressReportList()
+        {
+            var token = _httpContextAccessor.HttpContext!.Request.Cookies["AuthToken"];
+            //Console.WriteLine("Token:" + token);
+            if (string.IsNullOrEmpty(token))
+                throw new InvalidOperationException("Invalid or expire token");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(token);
+            var guideId = jsonToken?.Claims.FirstOrDefault(c => c.Type == "GuideId")?.Value;
+            //Console.WriteLine($"User Id: {userId}, Guide id: {guideId}");
+
+            if (string.IsNullOrEmpty(guideId))
+                throw new UserNotFoundException("Unauthorized Guide");
+
+            return await _progressReportRepository.GetStudentsPendingReportsByGuideIdAsync(int.Parse(guideId));
         }
     }
 }

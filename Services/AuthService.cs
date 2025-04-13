@@ -25,8 +25,9 @@ namespace Backend.Services
         private readonly IEmailService _emailService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStudentRepository _studentRepository;
+        private readonly IGuideRepository _guideRepository;
 
-        public AuthService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IStudentRepository studentRepository)
+        public AuthService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IConfiguration configuration, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IStudentRepository studentRepository, IGuideRepository guideRepository)
         {
             _userManager = userManager;
             _context = context;
@@ -34,6 +35,7 @@ namespace Backend.Services
             _emailService = emailService;
             _httpContextAccessor = httpContextAccessor;
             _studentRepository = studentRepository;
+            _guideRepository = guideRepository;
         }
 
         public async Task<IdentityResult> SignupAsync(SignupRequestDto signupDto)
@@ -134,9 +136,15 @@ namespace Backend.Services
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim("Role", user.ApplicationRoleId),
+                new Claim(ClaimTypes.Role, user.Role.NormalizedName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
+
+            if (user.Role.NormalizedName == "GUIDE")
+            {
+                var guide = await _guideRepository.GetGuideByUserIdAsync(user.Id);
+                claims.Add(new Claim("GuideId", guide.GuideId.ToString()));
+            }
 
             var token = new JwtSecurityToken(
                 audience: jwtSettings["Audience"],

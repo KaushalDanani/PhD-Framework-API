@@ -13,7 +13,7 @@ namespace Backend.Controllers
 
         public ProgressReportController(IProgressReportService progressReportService)
         {
-            _progressReportService = progressReportService; ;
+            _progressReportService = progressReportService;
         }
 
         [Authorize]
@@ -76,6 +76,42 @@ namespace Backend.Controllers
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPatch("update-latest-report")]
+        public async Task<IActionResult> UpdateLatestProgressReportFile(IFormFile report)
+        {
+            if (report.Length == 0)
+            {
+                return BadRequest(new { message = "File isn't uploaded." });
+            }
+
+            if (report.ContentType != "application/pdf")
+                return BadRequest(new { message = "Only PDF files are allowed." });
+
+            if (report.Length > 6 * 1024 * 1024)
+            {
+                return BadRequest(new { message = "File size is too large. Maximum allowed size is 6MB." });
+            }
+
+            try
+            {
+                var result = await _progressReportService.ChangeLatestReportFileAsync(report);
+                return Ok(new { message = "Report file updated successfully", reportData = result });
+            }
+            catch (InvalidOperationException ioe)
+            {
+                return BadRequest(new { message = ioe.Message });
+            }
+            catch (UserNotFoundException ue)
+            {
+                return Unauthorized(new { message = ue.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

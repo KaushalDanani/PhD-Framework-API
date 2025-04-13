@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Backend.Data;
 using Backend.Entities;
@@ -53,7 +54,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JWTSettings:SecretKey"]!)),
-        ValidAudience = builder.Configuration["JWTSettings:Audience"]
+        ValidAudience = builder.Configuration["JWTSettings:Audience"],
+        RoleClaimType = ClaimTypes.Role
     };
 
     // Ensure that the JWT token is read from cookies

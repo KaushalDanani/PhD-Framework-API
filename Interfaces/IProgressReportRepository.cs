@@ -1,4 +1,5 @@
-﻿using Backend.Entities;
+﻿using Backend.DTOs;
+using Backend.Entities;
 
 namespace Backend.Interfaces
 {
@@ -6,5 +7,7 @@ namespace Backend.Interfaces
     {
         Task AddAsync(ProgressReport report);
         Task<ProgressReport?> GetLastUploadedProgressReportAsync(string phdId);
+        Task<ProgressReport> GetProgressReportWithReportFile(ProgressReport progressReport);
+        Task<List<ProgressReportRequestsMetaDataDto>> GetStudentsPendingReportsByGuideIdAsync(int guideId);
     }
 }

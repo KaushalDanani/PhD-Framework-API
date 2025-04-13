@@ -6,5 +6,6 @@ namespace Backend.Interfaces
     {
         Task<ServiceResponseDto> AddGuideAsync(AddGuideRequestDto guideRequest);
         Task<List<GetGuideListResponseDto>> ListOfGuidesAsync();
+        Task<List<ProgressReportRequestsMetaDataDto>> GetProgressReportList();
     }
 }

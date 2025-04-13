@@ -3,6 +3,8 @@ using Backend.CustomExceptions;
 using Backend.DTOs;
 using Backend.Entities;
 using Backend.Interfaces;
+using Google.Apis.Drive.v3.Data;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Backend.Services
 {
@@ -202,6 +204,93 @@ namespace Backend.Services
             return new ProgressReportResultDto
             {
                 ReportEntity = lastReport
+            };
+        }
+
+        public async Task<ProgressReportResponseDto> ChangeLatestReportFileAsync(IFormFile newReportFile)
+        {
+            var token = _httpContextAccessor.HttpContext!.Request.Cookies["AuthToken"];
+            //Console.WriteLine("Token:" + token);
+            if (string.IsNullOrEmpty(token))
+                throw new InvalidOperationException("Invalid or expire token");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsonToken = handler.ReadJwtToken(token);
+            var userId = jsonToken?.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            Console.WriteLine($"User Id: {userId}");
+
+            if (string.IsNullOrEmpty(userId))
+                throw new UserNotFoundException("Unauthorized User");
+
+            // Get Student from userId which is basically get from jwt bearer
+            var associatedStudent = await _studentRepository.GetStudentByUserIdAsync(userId);
+            Console.WriteLine($"## Student: {associatedStudent}");
+
+            if (associatedStudent == null)
+                throw new InvalidOperationException("Student is not found");
+
+            var lastReport =
+                await _progressReportRepository.GetLastUploadedProgressReportAsync(associatedStudent.RegistrationId);
+            Console.WriteLine($"## Latest Progress Report: {lastReport}");
+
+            var reportWithFile = await _progressReportRepository.GetProgressReportWithReportFile(lastReport);
+
+            // Delete previous uploaded report file from Drive
+            var isFileDeletedFromDrive =
+                await _googleDriveService.DeleteFileFromDriveAsync(reportWithFile.ApplicationFile.StoredCloudFileId);
+            if (!isFileDeletedFromDrive)
+                throw new InvalidOperationException("Report file isn't deleted");
+
+
+            // Replace old report data to new report data
+            try
+            {
+                var reportFolderId = _configuration["GoogleDrive:ProgressReportFolderId"];
+                using (var fileStream = newReportFile.OpenReadStream())
+                {
+                    var fileData =
+                        await _googleDriveService.UploadFileToDriveAsync(fileStream,
+                            reportWithFile.ApplicationFile.FileName, newReportFile.ContentType, reportFolderId!);
+
+                    var existingApplicationFile = await _fileRepository.GetByFileIdAsync(lastReport.FileId);
+                    if (existingApplicationFile != null)
+                    {
+                        // Update the fields of the existing file record
+                        existingApplicationFile.StoredCloudFileId = fileData.ResponseBody.Id;
+                        existingApplicationFile.MimeType = newReportFile.ContentType;
+                        existingApplicationFile.FileSize = fileData.ResponseBody.Size ?? 0;
+                        existingApplicationFile.FilePath =
+                            $"https://drive.google.com/uc?export=view&id={fileData.ResponseBody.Id}"; // Google Drive link
+                        existingApplicationFile.UploadedAt = DateTime.Now;
+
+                        // Save the updated application file record to the database
+                        await _fileRepository.UpdateAsync(existingApplicationFile);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Report file isn't updated");
+            }
+
+            return new ProgressReportResponseDto
+            {
+                ProgressReportNo = lastReport.ProgressReportNo,
+                FileName = reportWithFile.ApplicationFile.FileName,
+                FilePath = reportWithFile.ApplicationFile.FilePath,
+                FileSize = reportWithFile.ApplicationFile.FileSize,
+                ReportStatus = lastReport.ReportStatus,
+                SubmissionDate = lastReport.SubmissionDate.ToString("F"),
+                GuideStatus = lastReport.GuideStatus,
+                GuideReviewDate = lastReport.GuideReviewDate?.ToString("F"),
+                GuideRemark = lastReport.GuideRemark,
+                DeanStatus = lastReport.DeanStatus,
+                DeanReviewDate = lastReport.DeanReviewDate?.ToString("F"),
+                DeanRemark = lastReport.DeanRemark,
+                AcademicSectionStatus = lastReport.AcademicSectionStatus,
+                AcademicSectionApproveDate = lastReport.AcademicSectionApproveDate?.ToString("F"),
+                AcademicSectionRemark = lastReport.AcademicSectionRemark,
+                LastUpdatedAt = lastReport.LastUpdatedAt.ToString("F")
             };
         }
     }

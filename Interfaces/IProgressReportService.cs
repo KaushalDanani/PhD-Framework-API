@@ -7,5 +7,6 @@ namespace Backend.Interfaces
     {
         Task<ServiceResponseDto> UploadNewProgressReportAsync(IFormFile reportFile);
         Task<ProgressReportResultDto> GetLatestProgressReportAsync();
+        Task<ProgressReportResponseDto> ChangeLatestReportFileAsync(IFormFile newReportFile);
     }
 }
