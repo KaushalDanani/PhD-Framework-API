@@ -20,6 +20,14 @@ namespace Backend.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Student> GetStudentWithFacultyAndDepartmentAsync(string email)
+        {
+            return (await _context.Students
+                .Include(nav => nav.Faculty)
+                .Include(nav => nav.Department)
+                .FirstOrDefaultAsync(s => s.Email == email))!;
+        }
+
         public async Task<Student> GetStudentByEmailAsync(string email)
         {
             return (await _context.Students.FirstOrDefaultAsync(s => s.Email == email))!;

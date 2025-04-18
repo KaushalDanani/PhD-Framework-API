@@ -38,7 +38,7 @@ namespace Backend.Controllers
 
             if (role == "STUDENT")
             {
-                var studentData = await _studentRepository.GetStudentByEmailAsync(user.Email!);
+                var studentData = await _studentRepository.GetStudentWithFacultyAndDepartmentAsync(user.Email!);
 
                 var studentProfileData = new StudentProfileDto
                 {
@@ -51,8 +51,8 @@ namespace Backend.Controllers
                     Email = studentData.Email,
                     PhoneNo = studentData.PhoneNo,
                     Gender = studentData.Gender,
-                    Department = studentData.Department,
-                    Faculty = studentData.Faculty,
+                    Department = studentData.Department.Name,
+                    Faculty = studentData.Faculty.Name,
                     Address = studentData.Address,
                     City = studentData.City,
                     Pincode = studentData.Pincode,
@@ -65,7 +65,7 @@ namespace Backend.Controllers
             }
             else if (role == "GUIDE")
             {
-                var guide = await _guideRepository.GetGuideByEmailAsync(user.Email!);
+                var guide = await _guideRepository.GetGuideWithFacultyAndDepartmentAsync(user.Email!);
 
                 var guideProfileData = new GuideProfileDto
                 {
@@ -77,8 +77,8 @@ namespace Backend.Controllers
                     Email = guide.Email,
                     PhoneNo = guide.ContactNo,
                     Gender = guide.Gender,
-                    Department = guide.DepartmentName,
-                    Faculty = guide.FacultyName,
+                    Department = guide.Department.Name,
+                    Faculty = guide.Faculty.Name,
                     Address = guide.Address,
                     City = guide.City,
                     Pincode = guide.PinCode,

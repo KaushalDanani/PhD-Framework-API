@@ -107,6 +107,9 @@ namespace Backend.Services
                 throw new InvalidOperationException("Profile isn't updated!");
             }
 
+            var studentWithFacultyAndDepartment =
+                await _studentRepository.GetStudentWithFacultyAndDepartmentAsync(existingStudent.Email);
+
             var studentDto = new StudentProfileDto
             {
                 RegistrationNo = existingStudent.RegistrationId,
@@ -120,8 +123,8 @@ namespace Backend.Services
                 Gender = existingStudent.Gender,
                 City = existingStudent.City,
                 DOB = existingStudent.DateOfBirth.ToLongDateString(),
-                Department = existingStudent.Department,
-                Faculty = existingStudent.Faculty,
+                Department = studentWithFacultyAndDepartment.Department.Name,
+                Faculty = studentWithFacultyAndDepartment.Faculty.Name,
                 State = existingStudent.State,
                 Pincode = existingStudent.Pincode,
                 Country = existingStudent.Country,
@@ -188,8 +191,8 @@ namespace Backend.Services
                 Gender = existingGuide.Gender,
                 City = existingGuide.City,
                 DOB = existingGuide.DateOfBirth.ToLongDateString(),
-                Department = existingGuide.DepartmentName,
-                Faculty = existingGuide.FacultyName,
+                Department = existingGuide.Department.Name,
+                Faculty = existingGuide.Faculty.Name,
                 State = existingGuide.State,
                 Pincode = existingGuide.PinCode,
                 Country = existingGuide.Country,

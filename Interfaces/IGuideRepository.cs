@@ -8,5 +8,6 @@ namespace Backend.Interfaces
         Task<Guide> GetGuideByEmailAsync(string email);
         Task<Guide> GetGuideByUserIdAsync(string userId);
         Task<List<GetGuideListResponseDto>> GetAllGuideAsListAsync();
+        Task<Guide> GetGuideWithFacultyAndDepartmentAsync(string email);
     }
 }

@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Backend.DTOs
+﻿namespace Backend.DTOs
 {
-    public class AddGuideRequestDto
+    public class AddDeanRequestDto
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -13,18 +11,11 @@ namespace Backend.DTOs
         public string Password { get; set; }
         public string Phone { get; set; }
 
-        public int Department { get; set; }
         public int Faculty { get; set; }
 
         public string Address { get; set; }
         public string City { get; set; }
         public string Pincode { get; set; }
         public string State { get; set; }
-        public string Country { get; set; }
-
-        public string Specialist { get; set; }
-        public string Designation { get; set; }
-        public int StudentLimit { get; set; }
-        public int YearsOfExperience { get; set; }
     }
 }

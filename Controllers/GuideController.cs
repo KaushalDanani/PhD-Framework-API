@@ -17,7 +17,6 @@ namespace Backend.Controllers
             _guideService = guideService;
         }
 
-        [Authorize]
         [HttpGet("get-list")]
         public async Task<IActionResult> GetListOfGuides()
         {

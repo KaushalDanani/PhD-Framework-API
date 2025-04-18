@@ -35,5 +35,13 @@ namespace Backend.Repositories
                 })
                 .ToListAsync();
         }
+
+        public async Task<Guide> GetGuideWithFacultyAndDepartmentAsync(string email)
+        {
+            return (await _context.Guides
+                .Include(nav => nav.Faculty)
+                .Include(nav => nav.Department)
+                .FirstOrDefaultAsync(s => s.Email == email))!;
+        }
     }
 }

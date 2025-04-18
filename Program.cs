@@ -86,6 +86,9 @@ builder.Services.AddScoped<IPhDTitleRepository, PhDTitleRepository>();
 builder.Services.AddScoped<IPhDTitleService, PhDTitleService>();
 builder.Services.AddScoped<IProgressReportRepository, ProgressReportRepository>();
 builder.Services.AddScoped<IProgressReportService, ProgressReportService>();
+builder.Services.AddScoped<IFacultyRepository, FacultyRepository>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<IDeanService, DeanService>();
 
 builder.Services.AddScoped<ISendGridClient>(provider =>
 {

@@ -12,6 +12,14 @@ namespace Backend.Entities
         [ForeignKey("ApplicationUser")]
         public string UserId { get; set; }
 
+        [Required]
+        [ForeignKey("Faculty")]
+        public int FacultyId { get; set; }
+
+        [Required]
+        [ForeignKey("Department")]
+        public int DepartmentId { get; set; }
+
         [Required, MaxLength(50)]
         public string LastName { get; set; }
 
@@ -29,12 +37,6 @@ namespace Backend.Entities
 
         [Required]
         public DateTime DateOfBirth { get; set; }
-
-        [MaxLength(100)]
-        public string DepartmentName { get; set; }
-
-        [MaxLength(100)]
-        public string FacultyName { get; set; }
 
         [MaxLength(255)]
         public string Address { get; set; }
@@ -67,6 +69,10 @@ namespace Backend.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.Now;  // Default to current timestamp
 
         public ApplicationUser ApplicationUser { get; set; }
+
+        public Faculty Faculty { get; set; }
+
+        public Department Department { get; set; }
     }
 
 }
